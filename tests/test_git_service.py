@@ -91,3 +91,89 @@ async def test_invalid_target_name_rejected(tmp_path: Path) -> None:
 
     with pytest.raises(GitOperationError):
         await git_service.clone_repo(str(source_repo), target_name="../evil")
+
+
+@pytest.mark.asyncio
+async def test_clone_real_github_repo(tmp_path: Path) -> None:
+    """Test cloning a real GitHub repository: code-learning project."""
+
+    workspace = tmp_path / "workspace_real"
+    git_service = GitService(workspace_dir=str(workspace), default_depth=1)
+
+    # Clone the real repository
+    repo_url = "https://github.com/longyunfeigu/code-learning"
+    repo_info = await git_service.clone_repo(repo_url)
+
+    # Verify basic repository info
+    assert repo_info is not None
+    assert repo_info.url == repo_url
+    assert repo_info.local_path is not None
+    assert Path(repo_info.local_path).exists()
+    assert (Path(repo_info.local_path) / ".git").exists()
+
+    # Verify branch and commit info
+    assert repo_info.default_branch is not None
+    assert repo_info.last_commit is not None
+    assert len(repo_info.last_commit) == 40  # Git commit hash length
+    assert repo_info.last_commit_date is not None
+    assert repo_info.clone_depth == 1
+
+    # List files in the repository
+    files = await git_service.list_files(repo_info.local_path)
+    assert len(files) > 0
+    # Check for common project files
+    assert any("README" in f or "readme" in f for f in files) or any(
+        ".py" in f for f in files
+    ), "Should contain README or Python files"
+
+    # Test reading a file (if README exists)
+    readme_files = [f for f in files if "README" in f or "readme" in f]
+    if readme_files:
+        content = await git_service.get_file_content(repo_info.local_path, readme_files[0])
+        assert content is not None
+        assert len(content) > 0
+
+
+@pytest.mark.asyncio
+async def test_clone_real_repo_with_specific_branch(tmp_path: Path) -> None:
+    """Test cloning a specific branch from a real repository."""
+
+    workspace = tmp_path / "workspace_branch"
+    git_service = GitService(workspace_dir=str(workspace), default_depth=1)
+
+    repo_url = "https://github.com/longyunfeigu/code-learning"
+    # Try to clone the main branch explicitly
+    repo_info = await git_service.clone_repo(repo_url, branch="main")
+
+    assert repo_info is not None
+    assert Path(repo_info.local_path).exists()
+    # Verify we're on the requested branch
+    assert repo_info.default_branch == "main"
+
+
+@pytest.mark.asyncio
+async def test_clone_real_repo_full_depth(tmp_path: Path) -> None:
+    """Test cloning a real repository with full history (no depth limit)."""
+
+    workspace = tmp_path / "workspace_full"
+    git_service = GitService(workspace_dir=str(workspace))
+
+    repo_url = "https://github.com/longyunfeigu/code-learning"
+    # Clone with full history by passing depth=0 (no --depth flag added)
+    repo_info = await git_service.clone_repo(repo_url, depth=0)
+
+    assert repo_info is not None
+    assert Path(repo_info.local_path).exists()
+    assert repo_info.clone_depth == 0  # Full clone (depth=0 means no depth limit)
+
+    # Verify we can access commit history
+    result = subprocess.run(
+        ["git", "log", "--oneline"],
+        cwd=repo_info.local_path,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    commits = result.stdout.strip().split("\n")
+    # Full clone should have multiple commits (code-learning has multiple commits)
+    assert len(commits) >= 2, f"Expected multiple commits, got: {commits}"

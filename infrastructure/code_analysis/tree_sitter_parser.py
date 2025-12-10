@@ -249,6 +249,7 @@ class TreeSitterParser:
     ) -> List[CodeSymbol]:
         """提取 Python 符号"""
         symbols = []
+        content_bytes = content.encode("utf-8")
 
         for child in getattr(node, "children", []):
             symbol = None
@@ -256,21 +257,22 @@ class TreeSitterParser:
             if child.type == "class_definition":
                 name_node = child.child_by_field_name("name")
                 if name_node:
-                    name = content[name_node.start_byte : name_node.end_byte]
+                    name = content_bytes[name_node.start_byte : name_node.end_byte].decode("utf-8")
+                    body = content_bytes[child.start_byte : child.end_byte].decode("utf-8")
                     symbol = CodeSymbol(
                         name=name,
                         kind=SymbolKind.CLASS,
                         file_path=file_path,
                         start_line=child.start_point[0] + 1,
                         end_line=child.end_point[0] + 1,
-                        body=content[child.start_byte : child.end_byte],
+                        body=body,
                         parent=parent,
                     )
                     # 递归提取类内部的方法
-                    body = child.child_by_field_name("body")
-                    if body:
+                    body_node = child.child_by_field_name("body")
+                    if body_node:
                         symbol.children = self._extract_python_symbols(
-                            body, file_path, content, name
+                            body_node, file_path, content, name
                         )
                         # 将类内部符号也加入返回列表，便于后续搜索
                         symbols.extend(symbol.children)
@@ -278,7 +280,8 @@ class TreeSitterParser:
             elif child.type == "function_definition":
                 name_node = child.child_by_field_name("name")
                 if name_node:
-                    name = content[name_node.start_byte : name_node.end_byte]
+                    name = content_bytes[name_node.start_byte : name_node.end_byte].decode("utf-8")
+                    body = content_bytes[child.start_byte : child.end_byte].decode("utf-8")
                     kind = SymbolKind.METHOD if parent else SymbolKind.FUNCTION
                     symbol = CodeSymbol(
                         name=name,
@@ -286,7 +289,7 @@ class TreeSitterParser:
                         file_path=file_path,
                         start_line=child.start_point[0] + 1,
                         end_line=child.end_point[0] + 1,
-                        body=content[child.start_byte : child.end_byte],
+                        body=body,
                         parent=parent,
                     )
 
@@ -308,6 +311,7 @@ class TreeSitterParser:
     ) -> List[CodeSymbol]:
         """提取 JavaScript/TypeScript 符号"""
         symbols = []
+        content_bytes = content.encode("utf-8")
 
         for child in getattr(node, "children", []):
             symbol = None
@@ -315,25 +319,27 @@ class TreeSitterParser:
             if child.type == "class_declaration":
                 name_node = child.child_by_field_name("name")
                 if name_node:
-                    name = content[name_node.start_byte : name_node.end_byte]
+                    name = content_bytes[name_node.start_byte : name_node.end_byte].decode("utf-8")
+                    body = content_bytes[child.start_byte : child.end_byte].decode("utf-8")
                     symbol = CodeSymbol(
                         name=name,
                         kind=SymbolKind.CLASS,
                         file_path=file_path,
                         start_line=child.start_point[0] + 1,
                         end_line=child.end_point[0] + 1,
-                        body=content[child.start_byte : child.end_byte],
+                        body=body,
                         parent=parent,
                     )
-                    body = child.child_by_field_name("body")
-                    if body is not None:
-                        symbol.children = self._extract_js_symbols(body, file_path, content, name)
+                    body_node = child.child_by_field_name("body")
+                    if body_node is not None:
+                        symbol.children = self._extract_js_symbols(body_node, file_path, content, name)
                         symbols.extend(symbol.children)
 
             elif child.type in ("function_declaration", "method_definition"):
                 name_node = child.child_by_field_name("name")
                 if name_node:
-                    name = content[name_node.start_byte : name_node.end_byte]
+                    name = content_bytes[name_node.start_byte : name_node.end_byte].decode("utf-8")
+                    body = content_bytes[child.start_byte : child.end_byte].decode("utf-8")
                     kind = SymbolKind.METHOD if parent else SymbolKind.FUNCTION
                     symbol = CodeSymbol(
                         name=name,
@@ -341,7 +347,7 @@ class TreeSitterParser:
                         file_path=file_path,
                         start_line=child.start_point[0] + 1,
                         end_line=child.end_point[0] + 1,
-                        body=content[child.start_byte : child.end_byte],
+                        body=body,
                         parent=parent,
                     )
 
