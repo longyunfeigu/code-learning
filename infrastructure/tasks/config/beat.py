@@ -3,6 +3,7 @@
 Create entries here when you need periodic jobs; keeping the structure close
 to the Celery docs makes copying snippets straightforward for new tasks.
 """
+
 from __future__ import annotations
 
 CELERY_BEAT_SCHEDULE = {

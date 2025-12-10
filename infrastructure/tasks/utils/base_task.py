@@ -1,4 +1,5 @@
 """Common base task for Celery jobs"""
+
 from __future__ import annotations
 
 from celery import Task

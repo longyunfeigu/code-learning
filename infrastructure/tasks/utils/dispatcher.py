@@ -1,4 +1,5 @@
 """Small dispatching helpers to decouple Celery from callers."""
+
 from __future__ import annotations
 
 from typing import Any, Dict
@@ -16,6 +17,8 @@ class TaskDispatcher:
             kwargs={"user_id": user_id, "email": email},
         )
 
-    def enqueue(self, task_name: str, *, args: tuple | None = None, kwargs: Dict[str, Any] | None = None) -> None:
+    def enqueue(
+        self, task_name: str, *, args: tuple | None = None, kwargs: Dict[str, Any] | None = None
+    ) -> None:
         """Generic escape hatch for scheduling arbitrary tasks by name."""
         celery_app.send_task(task_name, args=args or (), kwargs=kwargs or {})

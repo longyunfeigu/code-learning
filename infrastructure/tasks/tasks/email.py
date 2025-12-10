@@ -1,4 +1,5 @@
 """Email related Celery tasks"""
+
 from __future__ import annotations
 
 from celery import shared_task

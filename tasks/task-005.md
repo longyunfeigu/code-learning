@@ -6,10 +6,10 @@
 |------|-----|
 | **任务编号** | TASK-005 |
 | **任务名称** | 代码索引与向量存储 |
-| **版本** | V0.2 |
+| **版本** | V0.3 |
 | **状态** | 🔵 规划中 |
 | **优先级** | P0 - 最高 |
-| **预计工时** | 3-4 天 |
+| **预计工时** | 2-3 天 |
 | **前置任务** | TASK-003, TASK-004 |
 
 ---
@@ -29,9 +29,9 @@
 
 2. **代码索引器 (`infrastructure/code_analysis/code_indexer.py`)**
    - 项目索引：遍历项目所有代码文件
-   - 增量索引：只索引变更文件
+   - 增量索引：只索引变更文件（基于文件哈希）
    - 批量向量化：使用 LangChain OpenAI Embeddings
-   - 存储到向量库：使用 TASK-003 的 Qdrant VectorStore
+   - 存储到向量库：使用 ChromaDB 持久化存储
    - 元数据过滤：支持按文件路径、符号类型过滤
 
 3. **向量集合管理**
@@ -42,14 +42,15 @@
 
 4. **语义搜索服务 (`infrastructure/code_analysis/semantic_search.py`)**
    - 代码搜索：根据自然语言查询搜索相关代码
-   - 混合搜索：语义 + 关键词
+   - 混合搜索：语义 + 关键词（ChromaDB where 过滤）
    - 结果排序：相关度排序
    - 结果去重：相同文件的多个 chunk 合并
 
-5. **Celery 索引任务**
-   - 全量索引任务：新项目首次索引
-   - 增量索引任务：代码更新后重新索引
-   - 进度上报：索引进度百分比
+5. **异步索引服务（基于 FastAPI BackgroundTasks）**
+   - 全量索引：新项目首次索引，使用 BackgroundTasks 后台执行
+   - 增量索引：代码更新后重新索引
+   - 即时响应：API 立即返回，索引在后台进行
+   - 状态查询：提供索引状态和进度查询接口
 
 ---
 
@@ -63,7 +64,7 @@
 - [ ] 搜索结果包含代码片段和位置信息
 - [ ] 项目删除时向量集合同步删除
 - [ ] 支持增量索引，只处理变更文件
-- [ ] 提供索引状态查询 API
+- [ ] 提供索引状态查询接口
 
 ---
 
@@ -76,7 +77,7 @@
 
 2. **向量维度**
    - OpenAI text-embedding-3-small: 1536 维
-   - Qdrant 集合需指定正确维度
+   - ChromaDB 自动处理向量维度
 
 3. **元数据设计**
    ```python
@@ -87,19 +88,31 @@
        "end_line": 25,
        "symbol_name": "MyClass.my_method",
        "symbol_type": "method",
-       "language": "python"
+       "language": "python",
+       "file_hash": "abc123..."  # 用于增量索引
    }
    ```
 
-4. **性能优化**
+4. **ChromaDB 配置**
+   - 使用持久化模式：`chromadb.PersistentClient(path="./chroma_db")`
+   - 集合使用 cosine 距离度量
+   - 支持 where 条件过滤元数据
+
+5. **性能优化**
    - 批量向量化：每批 100 个 chunk
-   - 并发写入向量库
+   - 批量写入向量库
    - 大项目分批处理，避免内存溢出
 
-5. **错误处理**
+6. **错误处理**
    - 单文件解析失败不影响整体索引
    - 记录失败文件列表
    - 支持重试失败的文件
+
+7. **BackgroundTasks 使用说明**
+   - FastAPI 内置功能，无需额外依赖
+   - 索引任务在后台线程执行，API 立即返回
+   - 适合 MVP 阶段，后续可升级为 Celery 支持分布式
+   - 注意：进程重启会丢失未完成的任务
 
 ---
 
@@ -107,3 +120,4 @@
 
 - [架构设计文档 - 5.2 代码索引数据流](../docs/code-learning-coach-architecture.md#52-代码索引数据流)
 - [LangChain Text Splitters](https://python.langchain.com/docs/modules/data_connection/document_transformers/)
+- [ChromaDB 官方文档](https://docs.trychroma.com/)

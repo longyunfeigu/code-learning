@@ -1,4 +1,5 @@
 """Celery application configuration"""
+
 from __future__ import annotations
 
 import os
@@ -12,9 +13,7 @@ from .beat import CELERY_BEAT_SCHEDULE
 
 # Task modules are discovered via this tuple so new packages only need to be
 # listed here rather than altering the runtime imports scattered elsewhere.
-CELERY_IMPORTS = (
-    "infrastructure.tasks.tasks",
-)
+CELERY_IMPORTS = ("infrastructure.tasks.tasks",)
 
 
 celery_app = Celery("fastapi_forge")
@@ -67,4 +66,8 @@ logger = get_logger(__name__)
 
 @celery_app.on_after_configure.connect
 def _log_configuration(sender, **kwargs):
-    logger.info("celery_configured", broker=sender.conf.broker_url, result_backend=sender.conf.result_backend)
+    logger.info(
+        "celery_configured",
+        broker=sender.conf.broker_url,
+        result_backend=sender.conf.result_backend,
+    )

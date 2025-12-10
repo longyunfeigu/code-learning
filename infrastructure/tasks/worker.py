@@ -3,6 +3,7 @@
 Most deployments will invoke the standard Celery CLI, but keeping a small
 script makes local testing or Procfile-style runners straightforward.
 """
+
 from __future__ import annotations
 
 from celery.bin import worker
