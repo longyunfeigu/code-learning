@@ -1,0 +1,48 @@
+"""
+Prompt 模版模块
+
+包含各种 Agent 和功能的 Prompt 模版定义。
+
+模块说明：
+- code_explain.py: 代码讲解 Prompt
+- question_generate.py: 问题生成 Prompt
+- tutor.py: 学习教练 Prompt
+- analysis.py: 分析文档生成 Prompt
+"""
+
+from .code_explain import CODE_EXPLAIN_PROMPT, CODE_EXPLAIN_SYSTEM
+from .question_generate import QUESTION_GENERATE_PROMPT
+from .tutor import TUTOR_SYSTEM_PROMPT, TUTOR_FEEDBACK_PROMPT
+from .analysis import (
+    ARCHITECTURE_ANALYSIS_SYSTEM,
+    ARCHITECTURE_ANALYSIS_PROMPT,
+    MODULE_ANALYSIS_PROMPT,
+    CORE_CLASS_ANALYSIS_PROMPT,
+    KEY_METHOD_ANALYSIS_PROMPT,
+    CORE_FLOW_ANALYSIS_PROMPT,
+    DESIGN_HIGHLIGHTS_PROMPT,
+    BEST_PRACTICES_PROMPT,
+    NINE_SECTIONS_ANALYSIS_PROMPT,
+)
+
+__all__ = [
+    # 代码讲解
+    "CODE_EXPLAIN_PROMPT",
+    "CODE_EXPLAIN_SYSTEM",
+    # 问题生成
+    "QUESTION_GENERATE_PROMPT",
+    # 学习教练
+    "TUTOR_SYSTEM_PROMPT",
+    "TUTOR_FEEDBACK_PROMPT",
+    # 分析文档
+    "ARCHITECTURE_ANALYSIS_SYSTEM",
+    "ARCHITECTURE_ANALYSIS_PROMPT",
+    "MODULE_ANALYSIS_PROMPT",
+    "CORE_CLASS_ANALYSIS_PROMPT",
+    "KEY_METHOD_ANALYSIS_PROMPT",
+    "CORE_FLOW_ANALYSIS_PROMPT",
+    "DESIGN_HIGHLIGHTS_PROMPT",
+    "BEST_PRACTICES_PROMPT",
+    "NINE_SECTIONS_ANALYSIS_PROMPT",
+]
+

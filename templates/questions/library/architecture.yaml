@@ -1,0 +1,64 @@
+# Library/SDK 项目 - 架构相关问题模版
+
+- id: lib_arch_001
+  archetype: library
+  stage: 整体架构分析
+  difficulty: easy
+  title_template: "这个库的核心功能是什么？"
+  description_template: |
+    请分析 {project_name} 的核心功能：
+    1. 库的主要用途和目标用户？
+    2. 核心 API 有哪些？
+    3. 与同类库相比有什么特点？
+  placeholders:
+    - project_name
+  recommended_files:
+    - "README.md"
+    - "__init__.py"
+    - "src/"
+  prerequisites: []
+  tags:
+    - overview
+    - api
+
+- id: lib_arch_002
+  archetype: library
+  stage: 各模块职责与内部关系
+  difficulty: medium
+  title_template: "库的模块划分是怎样的？"
+  description_template: |
+    请分析 {project_name} 的模块结构：
+    1. 公开 API 和内部实现是如何分离的？
+    2. 各模块之间的依赖关系？
+    3. 哪些是核心模块，哪些是辅助模块？
+  placeholders:
+    - project_name
+  recommended_files:
+    - "src/"
+  prerequisites:
+    - lib_arch_001
+  tags:
+    - modules
+    - dependencies
+
+- id: lib_arch_003
+  archetype: library
+  stage: 核心类解剖
+  difficulty: medium
+  title_template: "核心类的设计是怎样的？"
+  description_template: |
+    请分析 {project_name} 的核心类设计：
+    1. 主要的类/接口有哪些？
+    2. 类的继承和组合关系？
+    3. 接口的设计原则是什么？
+  placeholders:
+    - project_name
+  recommended_files:
+    - "core/"
+  prerequisites:
+    - lib_arch_002
+  tags:
+    - classes
+    - interfaces
+    - design_patterns
+

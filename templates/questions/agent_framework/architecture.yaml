@@ -1,0 +1,111 @@
+# Agent 框架项目 - 架构相关问题模版
+
+- id: agent_arch_001
+  archetype: agent_framework
+  stage: 整体架构分析
+  difficulty: easy
+  title_template: "这个 Agent 框架的核心概念是什么？"
+  description_template: |
+    请分析 {project_name} 的核心概念：
+    1. 框架的核心抽象有哪些？（Agent、Tool、State 等）
+    2. 这些概念之间是什么关系？
+    3. 框架的设计理念是什么？
+  placeholders:
+    - project_name
+  recommended_files:
+    - "README.md"
+    - "src/"
+  prerequisites: []
+  tags:
+    - architecture
+    - concepts
+
+- id: agent_arch_002
+  archetype: agent_framework
+  stage: 整体架构分析
+  difficulty: medium
+  title_template: "Agent 的状态是如何管理的？"
+  description_template: |
+    请分析 {project_name} 的状态管理机制：
+    1. State 是如何定义的？
+    2. 状态在 Agent 执行过程中如何流转？
+    3. 状态持久化是如何实现的？
+  placeholders:
+    - project_name
+    - state_file
+  recommended_files:
+    - "{state_file}"
+    - "state/"
+  prerequisites:
+    - agent_arch_001
+  tags:
+    - state_management
+    - persistence
+
+- id: agent_arch_003
+  archetype: agent_framework
+  stage: 核心类解剖
+  difficulty: hard
+  title_template: "Agent Harness 是如何实现的？"
+  description_template: |
+    请深入分析 {project_name} 的 Agent Harness（Agent 运行时）：
+    1. Agent 的创建和配置流程？
+    2. 工具（Tools）是如何注册和调用的？
+    3. 子 Agent 的调度机制是什么？
+  placeholders:
+    - project_name
+  recommended_files:
+    - "agent/"
+    - "harness/"
+    - "runtime/"
+  prerequisites:
+    - agent_arch_002
+  tags:
+    - agent_harness
+    - tools
+    - subagents
+
+- id: agent_arch_004
+  archetype: agent_framework
+  stage: 核心流程分析
+  difficulty: hard
+  title_template: "一次 Agent 调用的完整流程是怎样的？"
+  description_template: |
+    请追踪 {project_name} 中一次完整的 Agent 调用：
+    1. 从用户输入到 Agent 接收
+    2. Agent 内部的处理流程（规划、执行、反思）
+    3. 工具调用的时机和方式
+    4. 结果的返回和状态更新
+  placeholders:
+    - project_name
+  recommended_files:
+    - "graph/"
+    - "orchestrator/"
+  prerequisites:
+    - agent_arch_003
+  tags:
+    - execution_flow
+    - llm_interaction
+
+- id: agent_arch_005
+  archetype: agent_framework
+  stage: 设计亮点与精妙之处
+  difficulty: hard
+  title_template: "框架有哪些设计亮点值得借鉴？"
+  description_template: |
+    请分析 {project_name} 的设计亮点：
+    1. 可扩展性设计（插件、中间件等）
+    2. 错误处理和容错机制
+    3. 与其他 Agent 框架相比的独特之处
+  placeholders:
+    - project_name
+  recommended_files:
+    - "middleware/"
+    - "plugins/"
+  prerequisites:
+    - agent_arch_004
+  tags:
+    - design_patterns
+    - extensibility
+    - best_practices
+
